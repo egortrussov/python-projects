@@ -35,8 +35,9 @@ isGameOver = False
 isNextLevelMenu = False
 isFinishGameMenu = False
 level = 1
-goalScore = 1
+goalScore = 10
 levelNum = 3
+walls = []
 
 def reset():
     global playerX; 
@@ -70,6 +71,147 @@ def drawApple():
         gridSize - 2,
         gridSize - 2
     ])
+
+def drawWalls():
+    global level
+    global walls 
+
+    walls = []
+    if level == 2:
+        walls.append(Node(2, 2)) 
+        walls.append(Node(2, 3)) 
+        walls.append(Node(3, 2))
+        
+        walls.append(Node(17, 2)) 
+        walls.append(Node(17, 3)) 
+        walls.append(Node(16, 2))
+
+        walls.append(Node(2, 16)) 
+        walls.append(Node(2, 17)) 
+        walls.append(Node(3, 17))
+        
+        walls.append(Node(17, 16)) 
+        walls.append(Node(17, 17)) 
+        walls.append(Node(16, 17))
+
+        walls.append(Node(5, 7)) 
+        walls.append(Node(5, 8)) 
+        walls.append(Node(5, 9)) 
+        walls.append(Node(5, 10))
+        walls.append(Node(5, 11))
+        walls.append(Node(5, 12))
+        walls.append(Node(5, 13))
+
+        
+
+        walls.append(Node(15, 7)) 
+        walls.append(Node(15, 8)) 
+        walls.append(Node(15, 9)) 
+        walls.append(Node(15, 10))
+        walls.append(Node(15, 11))
+        walls.append(Node(15, 12))
+        walls.append(Node(15, 13))
+
+        
+
+        walls.append(Node(9, 3))
+        walls.append(Node(10, 3))
+        walls.append(Node(11, 3))
+
+        walls.append(Node(9, 17))
+        walls.append(Node(10, 17))
+        walls.append(Node(11, 17))
+
+
+        for wall in walls:
+            pygame.draw.rect(screen, [0, 0, 255], [
+                wall.x * gridSize,
+                wall.y * gridSize,
+                gridSize - 2,
+                gridSize - 2
+            ])
+    if level == 3:
+        walls.append(Node(2, 2)) 
+        walls.append(Node(2, 3)) 
+        walls.append(Node(3, 2))
+        
+        walls.append(Node(17, 2)) 
+        walls.append(Node(17, 3)) 
+        walls.append(Node(16, 2))
+
+        walls.append(Node(2, 16)) 
+        walls.append(Node(2, 17)) 
+        walls.append(Node(3, 17))
+        
+        walls.append(Node(17, 16)) 
+        walls.append(Node(17, 17)) 
+        walls.append(Node(16, 17))
+
+        walls.append(Node(5, 7)) 
+        walls.append(Node(5, 8)) 
+        walls.append(Node(5, 9)) 
+        walls.append(Node(5, 10))
+        walls.append(Node(5, 11))
+        walls.append(Node(5, 12))
+        walls.append(Node(5, 13))
+
+        walls.append(Node(2, 7)) 
+        walls.append(Node(2, 8)) 
+        walls.append(Node(2, 9)) 
+        walls.append(Node(2, 10))
+        walls.append(Node(2, 11))
+        walls.append(Node(2, 12))
+        walls.append(Node(2, 13))
+
+        walls.append(Node(15, 7)) 
+        walls.append(Node(15, 8)) 
+        walls.append(Node(15, 9)) 
+        walls.append(Node(15, 10))
+        walls.append(Node(15, 11))
+        walls.append(Node(15, 12))
+        walls.append(Node(15, 13))
+
+        walls.append(Node(18, 7)) 
+        walls.append(Node(18, 8)) 
+        walls.append(Node(18, 9)) 
+        walls.append(Node(18, 10))
+        walls.append(Node(18, 11))
+        walls.append(Node(18, 12))
+        walls.append(Node(18, 13))
+
+        walls.append(Node(8, 3))
+        walls.append(Node(9, 3))
+        walls.append(Node(10, 3))
+        walls.append(Node(11, 3))
+        walls.append(Node(12, 3))
+
+        walls.append(Node(9, 1))
+        walls.append(Node(10, 1))
+        walls.append(Node(11, 1))
+
+        walls.append(Node(8, 17))
+        walls.append(Node(9, 17))
+        walls.append(Node(10, 17))
+        walls.append(Node(11, 17))
+        walls.append(Node(12, 17))
+
+        walls.append(Node(9, 19))
+        walls.append(Node(10, 19))
+        walls.append(Node(11, 19))
+
+        walls.append(Node(1, 1))
+        walls.append(Node(18, 1))
+        walls.append(Node(1, 18))
+        walls.append(Node(18, 18))
+
+
+        for wall in walls:
+            pygame.draw.rect(screen, [0, 0, 255], [
+                wall.x * gridSize,
+                wall.y * gridSize,
+                gridSize - 2,
+                gridSize - 2
+            ])
 
 def drawGameOverMenu():
     pygame.draw.rect(screen, [0, 0, 255], [70, 150, 260, 100])
@@ -169,6 +311,8 @@ while (running):
     screen.blit(scoreText, (10, 410))
     screen.blit(levelText, (320, 410))
 
+    drawWalls()
+
     if (playerX < 0):
         playerX = tileC - 1
     if (playerX > tileC - 1):
@@ -194,7 +338,11 @@ while (running):
         if (not vx and not vy):
             continue
         if (playerX == node.x and playerY == node.y and index != len(trail) and len(trail) > 0):
-            print('HHH')
+            isPlaying = False
+            isGameOver = True
+    
+    for node in walls:
+        if (playerX == node.x and playerY == node.y):
             isPlaying = False
             isGameOver = True
         
@@ -222,6 +370,10 @@ while (running):
                 isCorrect = True
 
                 for node in trail:
+                    if (node.x == appleX and node.y == appleY):
+                        isCorrect = False 
+                        break
+                for node in walls:
                     if (node.x == appleX and node.y == appleY):
                         isCorrect = False 
                         break
