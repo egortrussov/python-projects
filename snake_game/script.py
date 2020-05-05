@@ -8,8 +8,8 @@ screen = pygame.display.set_mode([400, 450])
 
 pygame.display.set_caption('Crappy game')
 
-font = pygame.font.Font(None, 24)
-font1 = pygame.font.Font(None, 34)
+font = pygame.font.Font('./fonts/joystix.ttf', 14)
+font1 = pygame.font.Font('./fonts/joystix.ttf', 24)
 
 running = True
 
@@ -35,9 +35,14 @@ isGameOver = False
 isNextLevelMenu = False
 isFinishGameMenu = False
 level = 1
-goalScore = 10
+goalScore = 3
 levelNum = 3
 walls = []
+isSizeReducingBonusShown = False
+hasSizeReducingBonusBeenEaten = False
+sizeReducingBonusX = 0
+sizeReducingBonusY = 0
+scoreToShowSizeReducingBonus = 2
 
 def reset():
     global playerX; 
@@ -47,10 +52,13 @@ def reset():
     global trail 
     global tail 
     global score 
+    global direction 
     global vx 
     global vy 
     global isPlaying
     global isGameOver 
+    global hasSizeReducingBonusBeenEaten
+    global isSizeReducingBonusShown
     
     playerX = 10
     playerY = 10
@@ -61,8 +69,11 @@ def reset():
     vx = 0
     vy = 0
     score = 0
+    direction = ''
     isPlaying = True 
     isGameOver = False
+    hasSizeReducingBonusBeenEaten = False
+    isSizeReducingBonusShown = False
 
 def drawApple():
     pygame.draw.rect(screen, [255, 0, 0], [
@@ -213,13 +224,21 @@ def drawWalls():
                 gridSize - 2
             ])
 
+def drawSizeReducingbonus():
+    pygame.draw.rect(screen, [0, 255, 0], [
+        sizeReducingBonusX * gridSize,
+        sizeReducingBonusY * gridSize,
+        gridSize - 2,
+        gridSize - 2
+    ])
+
 def drawGameOverMenu():
     pygame.draw.rect(screen, [0, 0, 255], [70, 150, 260, 100])
     pygame.draw.rect(screen, [0, 0, 0], [75, 155, 250, 90])
-    gameOverText = font1.render('Game over, noob!', 1, (255, 255, 255))
+    gameOverText = font1.render('Game over!', 1, (255, 255, 255))
     restertText = font.render('Press R to restart', 1, (255, 255, 255))
     screen.blit(gameOverText, (105, 165))
-    screen.blit(restertText, (130, 205))
+    screen.blit(restertText, (100, 205))
 
 def drawNextLevelMenu():
     global level
@@ -227,21 +246,29 @@ def drawNextLevelMenu():
     pygame.draw.rect(screen, [0, 255, 0], [70, 60, 260, 300])
     pygame.draw.rect(screen, [0, 0, 0], [75, 65, 250, 290])
     gameOverText = font1.render('Congrats!', 1, (255, 255, 255))
-    passedLevelText = font.render('You have passed level ' + str(level) , 1, (255, 255, 255))
-    restertText = font.render('Press Space to continue!', 1, (255, 255, 255))
-    screen.blit(gameOverText, (145, 85))
-    screen.blit(passedLevelText, (100, 115))
-    screen.blit(restertText, (100, 300))
+    passedLevelText = font.render('You have passed', 1, (255, 255, 255))
+    passedLevelNumText = font.render('level ' + str(level), 1, (255, 255, 255))
+    restertText = font.render('Press Space to', 1, (255, 255, 255))
+    restertText1 = font.render('Continue!', 1, (255, 255, 255))
+    screen.blit(gameOverText, (115, 85))
+    screen.blit(passedLevelText, (110, 135))
+    screen.blit(passedLevelNumText, (160, 160))
+    screen.blit(restertText, (120, 300))
+    screen.blit(restertText1, (150, 320))
 
 def drawFinishGameMenu():
     pygame.draw.rect(screen, [0, 255, 0], [70, 60, 260, 300])
     pygame.draw.rect(screen, [0, 0, 0], [75, 65, 250, 290])
     gameOverText = font1.render('Congrats!', 1, (255, 255, 255))
-    passedLevelText = font.render('You completed the game!', 1, (255, 255, 255))
-    restertText = font.render('Press Space to restart!', 1, (255, 255, 255))
-    screen.blit(gameOverText, (145, 85))
-    screen.blit(passedLevelText, (100, 115))
-    screen.blit(restertText, (100, 300))
+    passedLevelText = font.render('You completed', 1, (255, 255, 255))
+    passedLevelNumText = font.render('the game!', 1, (255, 255, 255))
+    restertText = font.render('Press Space to', 1, (255, 255, 255))
+    restertText1 = font.render('Restart!', 1, (255, 255, 255))
+    screen.blit(gameOverText, (115, 85))
+    screen.blit(passedLevelText, (120, 135))
+    screen.blit(passedLevelNumText, (140, 160))
+    screen.blit(restertText, (120, 300))
+    screen.blit(restertText1, (150, 320))
 
 pygame.display.flip()
 
@@ -309,7 +336,7 @@ while (running):
     scoreText = font.render(('Score: ' + str(score) + ' / ' + str(goalScore)), 1, (255, 255, 255))
     levelText = font.render(('Level: ' + str(level)), 1, (255, 255, 255))
     screen.blit(scoreText, (10, 410))
-    screen.blit(levelText, (320, 410))
+    screen.blit(levelText, (290, 410))
 
     drawWalls()
 
@@ -357,6 +384,35 @@ while (running):
 
         while (len(trail) > tail):
             trail.pop(0)
+        
+        if (level >= 2 and not hasSizeReducingBonusBeenEaten and not isSizeReducingBonusShown and score == scoreToShowSizeReducingBonus):
+            isSizeReducingBonusCoordFound = False
+            while (not isSizeReducingBonusCoordFound):
+                sizeReducingBonusX = random.randint(1, tileC - 1)
+                sizeReducingBonusY = random.randint(1, tileC - 1)
+
+                isCorrect = True
+
+                for node in trail:
+                    if (node.x == sizeReducingBonusX and node.y == sizeReducingBonusY):
+                        isCorrect = False 
+                        break
+                for node in walls:
+                    if (node.x == sizeReducingBonusX and node.y == sizeReducingBonusY):
+                        isCorrect = False 
+                        break
+                isSizeReducingBonusCoordFound = isCorrect
+
+            isSizeReducingBonusShown = True 
+        
+        if isSizeReducingBonusShown:
+            drawSizeReducingbonus()
+        
+        if (isSizeReducingBonusShown and sizeReducingBonusX == playerX and sizeReducingBonusY == playerY):
+            isSizeReducingBonusShown = False 
+            hasSizeReducingBonusBeenEaten = True 
+            tail = 5
+        
         
         if (appleX == playerX and appleY == playerY):
             tail += 1
