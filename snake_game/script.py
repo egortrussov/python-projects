@@ -34,15 +34,17 @@ isPlaying = True
 isGameOver = False
 isNextLevelMenu = False
 isFinishGameMenu = False
-level = 1
-goalScore = 3
-levelNum = 3
+level = 4
+goalScore = 10
+levelNum = 4
 walls = []
 isSizeReducingBonusShown = False
 hasSizeReducingBonusBeenEaten = False
 sizeReducingBonusX = 0
 sizeReducingBonusY = 0
-scoreToShowSizeReducingBonus = 2
+scoreToShowSizeReducingBonus = 5
+snakeColor = [255, 0, 0]
+timeWhenColorChanged = 0
 
 def reset():
     global playerX; 
@@ -59,6 +61,8 @@ def reset():
     global isGameOver 
     global hasSizeReducingBonusBeenEaten
     global isSizeReducingBonusShown
+    global snakeColor
+    global timeWhenColorChanged
     
     playerX = 10
     playerY = 10
@@ -74,6 +78,8 @@ def reset():
     isGameOver = False
     hasSizeReducingBonusBeenEaten = False
     isSizeReducingBonusShown = False
+    snakeColor = [255, 0, 0]
+    timeWhenColorChanged = 0
 
 def drawApple():
     pygame.draw.rect(screen, [255, 0, 0], [
@@ -88,6 +94,44 @@ def drawWalls():
     global walls 
 
     walls = []
+
+    if level == 3:
+        walls.append(Node(5, 3)) 
+        walls.append(Node(5, 5)) 
+        walls.append(Node(5, 7)) 
+        walls.append(Node(5, 9)) 
+        walls.append(Node(5, 11))
+        walls.append(Node(5, 13))
+        walls.append(Node(5, 15))
+
+        walls.append(Node(15, 3)) 
+        walls.append(Node(15, 5)) 
+        walls.append(Node(15, 7)) 
+        walls.append(Node(15, 9)) 
+        walls.append(Node(15, 11))
+        walls.append(Node(15, 13))
+        walls.append(Node(15, 15))
+
+        # walls.append(Node(7, 3))
+        walls.append(Node(9, 3))
+        walls.append(Node(11, 3))
+        # walls.append(Node(13, 3))
+
+        # walls.append(Node(7, 15))
+        walls.append(Node(9, 15))
+        walls.append(Node(11, 15))
+        # walls.append(Node(13, 15))
+
+
+
+        for wall in walls:
+            pygame.draw.rect(screen, [0, 0, 255], [
+                wall.x * gridSize,
+                wall.y * gridSize,
+                gridSize - 2,
+                gridSize - 2
+            ])
+
     if level == 2:
         walls.append(Node(2, 2)) 
         walls.append(Node(2, 3)) 
@@ -141,7 +185,7 @@ def drawWalls():
                 gridSize - 2,
                 gridSize - 2
             ])
-    if level == 3:
+    if level == 4:
         walls.append(Node(2, 2)) 
         walls.append(Node(2, 3)) 
         walls.append(Node(3, 2))
@@ -215,6 +259,13 @@ def drawWalls():
         walls.append(Node(1, 18))
         walls.append(Node(18, 18))
 
+        walls.append(Node(10, 14))
+        walls.append(Node(8, 14))
+        walls.append(Node(12, 14))
+
+        walls.append(Node(9, 6))
+        walls.append(Node(11, 6))
+
 
         for wall in walls:
             pygame.draw.rect(screen, [0, 0, 255], [
@@ -272,8 +323,11 @@ def drawFinishGameMenu():
 
 pygame.display.flip()
 
+timer = 0
+
 while (running):
     pygame.time.delay(100)
+    timer += 1
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -351,9 +405,13 @@ while (running):
 
     index = 0
 
+    if timeWhenColorChanged and timer - timeWhenColorChanged >= 4:
+        timeWhenColorChanged = 0
+        snakeColor = [255, 0, 0]
+
     for node in trail:
         index += 1
-        nodeColor = [255, 0, 0]
+        nodeColor = snakeColor
         if (index == len(trail)):
             nodeColor = [255, 255, 255]
         pygame.draw.rect(screen, nodeColor, [
@@ -412,6 +470,8 @@ while (running):
             isSizeReducingBonusShown = False 
             hasSizeReducingBonusBeenEaten = True 
             tail = 5
+            snakeColor = [255, 255, 255]
+            timeWhenColorChanged = timer
         
         
         if (appleX == playerX and appleY == playerY):
