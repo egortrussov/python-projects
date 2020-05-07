@@ -1,6 +1,7 @@
 import pygame
 import math 
 import random
+import os
 
 pygame.init()
 
@@ -34,9 +35,9 @@ isPlaying = True
 isGameOver = False
 isNextLevelMenu = False
 isFinishGameMenu = False
-level = 4
+level = 5
 goalScore = 10
-levelNum = 4
+levelNum = 5
 walls = []
 isSizeReducingBonusShown = False
 hasSizeReducingBonusBeenEaten = False
@@ -82,12 +83,15 @@ def reset():
     timeWhenColorChanged = 0
 
 def drawApple():
-    pygame.draw.rect(screen, [255, 0, 0], [
-        appleX * gridSize,
-        appleY * gridSize,
-        gridSize - 2,
-        gridSize - 2
-    ])
+    # pygame.draw.rect(screen, [255, 0, 0], [
+    #     appleX * gridSize,
+    #     appleY * gridSize,
+    #     gridSize - 2,
+    #     gridSize - 2
+    # ])
+    appleImg = pygame.image.load(os.path.join('images', 'apple1.png'))
+    screen.blit(appleImg, (appleX * gridSize, appleY * gridSize))
+
 
 def drawWalls():
     global level
@@ -185,6 +189,7 @@ def drawWalls():
                 gridSize - 2,
                 gridSize - 2
             ])
+    
     if level == 4:
         walls.append(Node(2, 2)) 
         walls.append(Node(2, 3)) 
@@ -275,13 +280,50 @@ def drawWalls():
                 gridSize - 2
             ])
 
+    if level == 5:
+        # for i in range(tileC):
+        #     if i == 0 or i == tileC:
+        #         for j in range(0, tileC):
+        #             walls.append(Node(j, i))
+        #     elif i % 2 == 0 and i != tileC - 2:
+        #         for j in range(1, tileC - 1):
+        #             walls.append(Node(j, i))
+        #     else:
+        #         walls.append(Node(0, i))
+        #         walls.append(Node(tileC, i))
+
+        for i in range(1, tileC - 2):
+            walls.append(Node(i, 1))
+            walls.append(Node(i, tileC - 3))
+            walls.append(Node(1, i))
+            walls.append(Node(tileC - 3, i))
+        
+        for i in range(tileC):
+            for j in range(tileC):
+                if (i == 0 or j == 0 or i >= 18 or j >= 18):
+                    walls.append(Node(i, j))
+        
+        for i in range(3, tileC - 4, 2):
+            for j in range(3, tileC - 4, 2):
+                walls.append(Node(i, j))
+        
+        for wall in walls:
+            pygame.draw.rect(screen, [0, 0, 255], [
+                wall.x * gridSize,
+                wall.y * gridSize,
+                gridSize - 2,
+                gridSize - 2
+            ])
+
 def drawSizeReducingbonus():
-    pygame.draw.rect(screen, [0, 255, 0], [
-        sizeReducingBonusX * gridSize,
-        sizeReducingBonusY * gridSize,
-        gridSize - 2,
-        gridSize - 2
-    ])
+    # pygame.draw.rect(screen, [0, 255, 0], [
+    #     sizeReducingBonusX * gridSize,
+    #     sizeReducingBonusY * gridSize,
+    #     gridSize - 2,
+    #     gridSize - 2
+    # ])
+    appleImg = pygame.image.load(os.path.join('images', 'golden-apple.png'))
+    screen.blit(appleImg, (sizeReducingBonusX * gridSize, sizeReducingBonusY * gridSize))
 
 def drawGameOverMenu():
     pygame.draw.rect(screen, [0, 0, 255], [70, 150, 260, 100])
