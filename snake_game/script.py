@@ -32,10 +32,11 @@ tail = 5
 score = 0
 direction = ''
 isPlaying = True
+isWaiting = True
 isGameOver = False
 isNextLevelMenu = False
 isFinishGameMenu = False
-level = 5
+level = 1
 goalScore = 10
 levelNum = 5
 walls = []
@@ -91,7 +92,6 @@ def drawApple():
     # ])
     appleImg = pygame.image.load(os.path.join('images', 'apple1.png'))
     screen.blit(appleImg, (appleX * gridSize, appleY * gridSize))
-
 
 def drawWalls():
     global level
@@ -363,6 +363,10 @@ def drawFinishGameMenu():
     screen.blit(restertText, (120, 300))
     screen.blit(restertText1, (150, 320))
 
+def drawHintText():
+    hintText = font.render('Press arrow keys to start', 1, (255, 255, 255))
+    screen.blit(hintText, [50, 430])
+
 pygame.display.flip()
 
 timer = 0
@@ -395,24 +399,28 @@ while (running):
         isFinishGameMenu = False
         isPlaying = True
 
-    if (isPlaying):
+    if (isPlaying or isWaiting):
 
         if (keys[pygame.K_UP] and direction != 'down'):
             direction = 'up'
             vy = -1
             vx = 0
+            isWaiting = False
         if (keys[pygame.K_DOWN] and direction != 'up'):
             direction = 'down'
             vy = 1
             vx = 0
+            isWaiting = False
         if (keys[pygame.K_LEFT] and direction != 'right'):
             direction = 'left'
             vx = -1
             vy = 0
+            isWaiting = False
         if (keys[pygame.K_RIGHT] and direction != 'left'):
             direction = 'right'
             vx = 1
             vy = 0
+            isWaiting = False
     
     if (score >= goalScore):
         isPlaying = False 
@@ -433,6 +441,9 @@ while (running):
     levelText = font.render(('Level: ' + str(level)), 1, (255, 255, 255))
     screen.blit(scoreText, (10, 410))
     screen.blit(levelText, (290, 410))
+
+    if (isWaiting):
+        drawHintText()
 
     drawWalls()
 
@@ -516,28 +527,28 @@ while (running):
             timeWhenColorChanged = timer
         
         
-        if (appleX == playerX and appleY == playerY):
-            tail += 1
-            score += 1
-            
-            isAppleCoordFound = False 
-            while (not isAppleCoordFound):
-                appleX = random.randint(1, tileC - 1)
-                appleY = random.randint(1, tileC - 1)
+    if (appleX == playerX and appleY == playerY):
+        tail += 1
+        score += 1
+        
+        isAppleCoordFound = False 
+        while (not isAppleCoordFound):
+            appleX = random.randint(1, tileC - 1)
+            appleY = random.randint(1, tileC - 1)
 
-                isCorrect = True
+            isCorrect = True
 
-                for node in trail:
-                    if (node.x == appleX and node.y == appleY):
-                        isCorrect = False 
-                        break
-                for node in walls:
-                    if (node.x == appleX and node.y == appleY):
-                        isCorrect = False 
-                        break
-                isAppleCoordFound = isCorrect
-            
-        drawApple()
+            for node in trail:
+                if (node.x == appleX and node.y == appleY):
+                    isCorrect = False 
+                    break
+            for node in walls:
+                if (node.x == appleX and node.y == appleY):
+                    isCorrect = False 
+                    break
+            isAppleCoordFound = isCorrect
+        
+    drawApple()
     
     if (isGameOver):
         drawGameOverMenu()
